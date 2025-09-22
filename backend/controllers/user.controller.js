@@ -26,7 +26,7 @@ export const register = async (req, res) => {
       role,
     });
 
-    await newUser.save();
+    await newUser .save();
 
     res.status(201).json({ message: "User created successfully", success: true, user: newUser });
   } catch (error) {
@@ -38,13 +38,13 @@ export const register = async (req, res) => {
 // ✅ Login
 export const login = async (req, res) => {
   try {
-    const { email, password, role } = req.body;
+    const { email, password } = req.body; // role remove
 
-    if (!email || !password || !role) {
-      return res.status(400).json({ message: "All fields are required", success: false });
+    if (!email || !password) {
+      return res.status(400).json({ message: "Email and password are required", success: false });
     }
 
-    let user = await User.findOne({ email });
+    const user = await User.findOne({ email });
     if (!user) {
       return res.status(400).json({ message: "User does not exist", success: false });
     }
@@ -54,13 +54,7 @@ export const login = async (req, res) => {
       return res.status(400).json({ message: "Invalid credentials", success: false });
     }
 
-    if (user.role !== role) {
-      return res.status(400).json({ message: "Invalid role", success: false });
-    }
-
-    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, {
-      expiresIn: '1d',
-    });
+    const token = jwt.sign({ id: user._id }, process.env.JWT_SECRET, { expiresIn: '1d' });
 
     const userData = {
       _id: user._id,
@@ -73,9 +67,9 @@ export const login = async (req, res) => {
 
     res.status(200)
       .cookie('token', token, {
-        maxAge: 24 * 60 * 60 * 1000, // 1 day
+        maxAge: 24 * 60 * 60 * 1000,
         httpOnly: true,
-        sameSite: 'strict',
+        sameSite: "Strict",
       })
       .json({
         message: `Welcome back ${user.name}`,
@@ -87,6 +81,7 @@ export const login = async (req, res) => {
     res.status(500).json({ message: "Error logging in", success: false, error });
   }
 };
+
 
 // ✅ Logout
 export const logout = async (req, res) => {
